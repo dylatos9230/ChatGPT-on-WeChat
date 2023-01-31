@@ -4,7 +4,7 @@ import { ContactInterface, RoomInterface } from "wechaty/impls";
 import { Configuration, OpenAIApi } from "openai";
 
 // ChatGPT error response configuration
-const chatgptErrorMessage = "🤖️：AI机器人摆烂了，请稍后再试～";
+const chatgptErrorMessage = "🤖️：图图摆烂了，请稍后再试～";
 
 // ChatGPT model configuration
 // please refer to the OpenAI API doc: https://beta.openai.com/docs/api-reference/introduction
@@ -12,12 +12,12 @@ const ChatGPTModelConfig = {
   // this model field is required
   model: "text-davinci-003",
   // add your ChatGPT model parameters below
-  temperature: 0.3,
+  temperature: 0.6,
   max_tokens: 2000,
 };
 
 // message size for a single reply by the bot
-const SINGLE_MESSAGE_MAX_SIZE = 500;
+const SINGLE_MESSAGE_MAX_SIZE = 700;
 
 enum MessageType {
   Unknown = 0,
@@ -71,8 +71,12 @@ export class ChatGPTBot {
       this.OpenAI = new OpenAIApi(this.OpenAIConfig);
       // Hint user the trigger keyword in private chat and group chat
       console.log(`🤖️ Chatbot name is: ${this.botName}`);
-      console.log(`🎯 Trigger keyword in private chat is: ${this.chatgptTriggerKeyword}`);
-      console.log(`🎯 Trigger keyword in group chat is: ${this.chatGroupTriggerKeyword}`);
+      console.log(
+        `🎯 Trigger keyword in private chat is: ${this.chatgptTriggerKeyword}`
+      );
+      console.log(
+        `🎯 Trigger keyword in group chat is: ${this.chatGroupTriggerKeyword}`
+      );
       // Run an initial test to confirm API works fine
       await this.onChatGPT("Say Hello World");
       console.log(`✅ Chatbot starts success, ready to handle message!`);
@@ -100,6 +104,7 @@ export class ChatGPTBot {
     const chatgptTriggerKeyword = this.chatgptTriggerKeyword;
     let triggered = false;
     if (isPrivateChat) {
+      return false;
       triggered = chatgptTriggerKeyword
         ? text.startsWith(chatgptTriggerKeyword)
         : true;
@@ -184,6 +189,7 @@ export class ChatGPTBot {
   // reply to group message
   async onGroupMessage(room: RoomInterface, text: string) {
     // get reply from ChatGPT
+    console.log(room);
     const chatgptReplyMessage = await this.onChatGPT(text);
     // the reply consist of: original text and bot reply
     const result = `${text}\n ---------- \n ${chatgptReplyMessage}`;
@@ -204,15 +210,19 @@ export class ChatGPTBot {
       this.isNonsense(talker, messageType, rawText) ||
       !this.triggerGPTMessage(rawText, isPrivateChat)
     ) {
+      return "无效信息";
+    }
+    if (isPrivateChat) {
       return;
     }
     // clean the message for ChatGPT input
     const text = this.cleanMessage(rawText, isPrivateChat);
-    // reply to private or group chat
-    if (isPrivateChat) {
-      return await this.onPrivateMessage(talker, text);
-    } else {
-      return await this.onGroupMessage(room, text);
-    }
+    // // reply to private or group chat
+    // if (isPrivateChat) {
+    //   return await this.onPrivateMessage(talker, text);
+    // } else {
+    console.log("群聊开始------");
+    return await this.onGroupMessage(room, text);
+    // }
   }
 }

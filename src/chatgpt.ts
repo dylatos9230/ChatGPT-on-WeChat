@@ -13,7 +13,7 @@ const ChatGPTModelConfig = {
   model: "text-davinci-003",
   // add your ChatGPT model parameters below
   // temperature: 0,
-  top_p: 1,
+  top_p: 0.5,
   max_tokens: 4000,
 };
 
@@ -48,8 +48,8 @@ export class ChatGPTBot {
 
   // Chatgpt fine-tune for being a chatbot (guided by OpenAI official document)
   applyContext(text: string): string {
-    // return `You are an artificial intelligence bot from a company called "OpenAI". Your primary tasks are chatting with users and answering their questions.\nIf the user says: ${text}.\nYou will say: `;
-    return text;
+    return `You are an artificial intelligence bot from a company called "OpenAI".\nIf the user says: ${text}.\nYou will say: `;
+    // return text;
   }
 
   setBotName(botName: string) {

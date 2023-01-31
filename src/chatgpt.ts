@@ -12,12 +12,13 @@ const ChatGPTModelConfig = {
   // this model field is required
   model: "text-davinci-003",
   // add your ChatGPT model parameters below
-  temperature: 0.6,
-  max_tokens: 2000,
+  // temperature: 0,
+  top_p: 1,
+  max_tokens: 4000,
 };
 
 // message size for a single reply by the bot
-const SINGLE_MESSAGE_MAX_SIZE = 700;
+const SINGLE_MESSAGE_MAX_SIZE = 2000;
 
 enum MessageType {
   Unknown = 0,
@@ -104,10 +105,11 @@ export class ChatGPTBot {
     const chatgptTriggerKeyword = this.chatgptTriggerKeyword;
     let triggered = false;
     if (isPrivateChat) {
-      return false;
       triggered = chatgptTriggerKeyword
         ? text.startsWith(chatgptTriggerKeyword)
         : true;
+      triggered = false;
+      console.log("Chatbot can't be triggered");
     } else {
       triggered = text.startsWith(this.chatGroupTriggerKeyword);
     }
@@ -189,7 +191,6 @@ export class ChatGPTBot {
   // reply to group message
   async onGroupMessage(room: RoomInterface, text: string) {
     // get reply from ChatGPT
-    console.log(room);
     const chatgptReplyMessage = await this.onChatGPT(text);
     // the reply consist of: original text and bot reply
     const result = `${text}\n ---------- \n ${chatgptReplyMessage}`;
